@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Primer Parcial de Seguridad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  --bg:#F4F5F1; --card:#FFFFFF; --ink:#1B2326; --muted:#58625F; --line:#D8DCD3;
+  --accent:#1F5FAD; --accent-soft:#E2EBF6; --hot:#B0431A; --hot-soft:#F8E6DD;
+  --mid:#8A6200; --mid-soft:#F5ECD2; --low:#5B6663; --low-soft:#E8EBE6;
+  --ok:#2E7D4F; --ok-soft:#E0F0E6; --bad:#B3261E; --bad-soft:#F7E1DF;
+  --code:#EEF0EA;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --cond:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111719; --card:#182023; --ink:#E4E9E5; --muted:#9AA6A2; --line:#2B3538;
+    --accent:#86B4F0; --accent-soft:#1A2A3E; --hot:#F2906A; --hot-soft:#3A2219;
+    --mid:#E3B64E; --mid-soft:#352B12; --low:#A7B1AE; --low-soft:#222B2E;
+    --ok:#6FCB94; --ok-soft:#173022; --bad:#F08A82; --bad-soft:#3A1C1A; --code:#1F2A2D;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111719; --card:#182023; --ink:#E4E9E5; --muted:#9AA6A2; --line:#2B3538;
+  --accent:#86B4F0; --accent-soft:#1A2A3E; --hot:#F2906A; --hot-soft:#3A2219;
+  --mid:#E3B64E; --mid-soft:#352B12; --low:#A7B1AE; --low-soft:#222B2E;
+  --ok:#6FCB94; --ok-soft:#173022; --bad:#F08A82; --bad-soft:#3A1C1A; --code:#1F2A2D;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;margin:0;padding-inline:16px}
+.wrap{max-width:900px;margin:0 auto;padding-block:24px 80px}
+h1,h2,h3,h4{font-family:var(--cond);line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,6vw,44px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:28px;font-weight:700;margin-top:8px}
+h3{font-size:21px;font-weight:600}
+h4{font-size:17px;font-weight:600;margin-top:18px}
+p,li{max-width:68ch}
+a{color:var(--accent)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+code{background:var(--code);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--mono);font-size:14px;background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;line-height:1.5;margin:10px 0}
+.cipher{font-family:var(--mono);letter-spacing:.14em;color:var(--muted);font-size:14px;word-break:break-all}
+header.top{display:grid;gap:10px;padding-bottom:18px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px;display:flex;gap:6px;overflow-x:auto}
+nav.tabs a{font-family:var(--cond);font-weight:600;font-size:15px;text-decoration:none;color:var(--ink);padding:6px 12px;border-radius:999px;white-space:nowrap;border:1px solid var(--line);background:var(--card)}
+nav.tabs a:hover,nav.tabs a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+section.part{padding-top:36px;scroll-margin-top:60px}
+.lead{color:var(--muted);margin:6px 0 16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.box h3{font-size:18px;margin-bottom:6px}
+.box ul{margin:6px 0 0;padding-left:20px}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.warn{border-left:3px solid var(--mid);background:var(--mid-soft);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:4px;vertical-align:2px}
+.alta{background:var(--hot-soft);color:var(--hot)}
+.media{background:var(--mid-soft);color:var(--mid)}
+.baja{background:var(--low-soft);color:var(--low)}
+.src{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 5px;vertical-align:1px;white-space:nowrap}
+.comp{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--mid);border:1px dashed var(--mid);border-radius:4px;padding:0 5px;vertical-align:1px;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:14px;color:var(--muted);margin:8px 0 4px}
+details.topic{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:10px 0}
+details.topic>summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+details.topic>summary::-webkit-details-marker{display:none}
+details.topic>summary::before{content:"+";font-family:var(--mono);font-weight:600;color:var(--accent);width:14px}
+details.topic[open]>summary::before{content:"−"}
+details.topic>summary h3{flex:1 1 60%}
+details.topic .body{padding:0 16px 16px 40px}
+@media (max-width:560px){details.topic .body{padding:0 14px 14px 14px}}
+details.sol{border:1px dashed var(--line);border-radius:6px;margin:10px 0;background:var(--bg)}
+details.sol>summary{cursor:pointer;padding:8px 12px;font-family:var(--cond);font-weight:600;color:var(--accent)}
+details.sol .inner{padding:2px 14px 12px}
+.qa{margin:8px 0}
+.qa b{display:block}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+.tbl{overflow-x:auto;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--cond);font-weight:600;font-size:15px;background:var(--code)}
+td.num,th.num{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.exercise{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:14px 0}
+.exercise>h4:first-child{margin-top:0}
+.kind{margin-top:28px;padding-top:6px;border-top:2px solid var(--ink)}
+.kind h3{margin-top:10px}
+ol.steps{padding-left:22px}
+ol.steps li{margin:4px 0}
+/* quiz */
+.quiz{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}
+.timer{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:10px 0 14px}
+.timer>i{display:block;height:100%;background:var(--accent);width:100%;transition:width .2s linear}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opts button{font:inherit;text-align:left;padding:10px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.opts button:hover,.opts button:focus-visible{border-color:var(--accent);outline:none}
+.btn{font-family:var(--cond);font-weight:600;font-size:16px;padding:9px 16px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--card);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.qmeta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.res-item{border-top:1px solid var(--line);padding:10px 0}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+/* plan */
+.day{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0}
+.day h3{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.day h3 small{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
+.check{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
+.check input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.check label{cursor:pointer}
+.check input:checked+label{color:var(--muted);text-decoration:line-through}
+/* calc */
+.calc{display:grid;gap:10px}
+.calc .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.calc input,.calc select{font-family:var(--mono);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:120px}
+.calc select{width:auto}
+.out{font-family:var(--mono);font-size:18px;padding:10px 12px;background:var(--code);border-radius:6px;min-height:46px}
+footer{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Seguridad Informática · Ing. en Sistemas · Parcial 1</div>
+  <h1>Primer parcial de Seguridad Informática</h1>
+  <div class="cipher" aria-label="Ejemplo de César con clave D">SEGURIDAD INFORMATICA → VHJXULGDG LQIRUPDWLFD <span style="letter-spacing:0">(César, clave D)</span></div>
+  <p style="margin:4px 0 0">Viernes <b>02/10, 19 h</b>, virtual, con cámara y micrófono prendidos. Entra todo hasta <b>clave asimétrica</b> inclusive. Esta guía sale de las 7 clases grabadas (14/08 a 25/09) y del material de la cátedra.</p>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <a href="#inicio">Formato</a>
+  <a href="#teoria">3 · Teoría</a>
+  <a href="#practica">4 · Práctica</a>
+  <a href="#simulacro">5 · Simulacro</a>
+  <a href="#plan">6 · Plan</a>
+  <a href="#calc">Calculadora</a>
+</nav>
+
+<!-- ================= FORMATO ================= -->
+<section class="part" id="inicio">
+  <h2>Cómo es el parcial (según el profe)</h2>
+  <p class="lead">Lo explicó el 25/09. Las marcas azules indican la clase de la que sale cada dato.</p>
+  <div class="grid2">
+    <div class="box"><h3>1 · Multiple choice</h3><p style="margin:0">Preguntas "muy sencillas, se contestan directamente con lo que se vio". Tenés <b>20 a 30 segundos</b> por pregunta, <b>no podés volver atrás</b> y se envía solo al terminar el tiempo. <span class="src">25/09</span></p></div>
+    <div class="box"><h3>2 · Ejercicios escritos</h3><p style="margin:0">En papel, entregados en <b>PDF</b>. Uno se repite en <b>CrypTool</b> y mandás la captura, también en PDF. Pueden tomar un criptograma, políticas válidas o no válidas, clave asimétrica, cálculo e inverso modular y Diffie-Hellman. <span class="src">25/09</span> <span class="src">11/09</span></p></div>
+    <div class="box"><h3>3 · Oral opcional</h3><p style="margin:0">Solo si tu nota quedó dudosa y lo pedís vos. Es tipo "ping-pong": preguntas fáciles que hay que contestar rápido. <span class="src">25/09</span> <span class="src">11/09</span></p></div>
+  </div>
+  <div class="note"><b>Llevá:</b> calculadora física (el celular "se va a donde no tiene que irse"), CrypTool 1.4 instalado, cámara y micrófono, y una forma rápida de pasar las hojas a PDF. Aprobás con 4, que equivale al 60 % bien resuelto. <span class="src">14/08</span> <span class="src">25/09</span></div>
+
+  <h3 style="margin-top:22px">Qué entra y qué no</h3>
+  <div class="grid2">
+    <div class="box"><b>Entra</b>
+      <ul>
+        <li>Gestión y teoría: CIA, políticas, riesgo, terminología, auditoría y pentest</li>
+        <li>Criptografía clásica y CrypTool</li>
+        <li>Clave simétrica y KDC</li>
+        <li>Clave asimétrica: RSA, hash, firma, esquema híbrido</li>
+        <li>Aritmética modular y Diffie-Hellman</li>
+      </ul></div>
+    <div class="box"><b>No entra</b> (lo dijo explícitamente)
+      <ul>
+        <li>ACL y routers de selección <span class="src">25/09</span></li>
+        <li>IA, machine learning y Colab <span class="src">18/09</span></li>
+        <li>Secreto dividido, teorema chino del resto y lanzamiento de moneda <span class="src">11/09</span></li>
+        <li>Forense (lo dejamos afuera de común acuerdo)</li>
+      </ul></div>
+  </div>
+  <div class="legend">
+    <span><span class="tag alta">Alta</span> señal fuerte del profe</span>
+    <span><span class="tag media">Media</span> visto y probable</span>
+    <span><span class="tag baja">Baja</span> contexto para el multiple choice</span>
+    <span><span class="src">dd/mm</span> clase de origen</span>
+    <span><span class="comp">complemento</span> no lo dijo el profe</span>
+  </div>
+</section>
+
+<!-- ================= TEORIA ================= -->
+<section class="part" id="teoria">
+  <h2>3 · Resumen teórico por tema</h2>
+  <p class="lead">Ordenado de prioridad alta a baja. Tocá cada tema para abrirlo. Las respuestas a las preguntas de repaso están ocultas.</p>
+
+  <!-- T1 -->
+  <details class="topic" open>
+    <summary><h3>T1 · Aritmética modular</h3><span class="tag alta">Alta</span><span class="src">04/09</span><span class="src">18/09</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>En simple:</b> trabajar "módulo n" es contar en un reloj de n posiciones. Cuando te pasás, volvés a empezar. En un reloj de 12 horas, las 14 son las 2: dio una vuelta completa y le sobraron 2. Todo RSA y Diffie-Hellman se hace así.</p>
+      <h4>Definiciones para saber de memoria</h4>
+      <ul>
+        <li><b>a mod n</b> es el resto de dividir a por n. <b>Nunca puede ser mayor que el módulo</b>: el profe lo repitió en casi todas las clases.</li>
+        <li><b>Congruencia:</b> a ≡ b (mod n) si |a − b| = k·n para algún entero k. Ejemplo: 14 ≡ 2 (mod 12), porque 14 − 2 = 12 = 1·12.</li>
+        <li><b>Inverso modular:</b> x = a⁻¹ mod n es el número que cumple a·x ≡ 1 (mod n).</li>
+        <li><b>Propiedad clave:</b> a<sup>m</sup>·a<sup>k</sup> = a<sup>m+k</sup> ("productos de igual base: se suman los exponentes").</li>
+      </ul>
+      <h4>Los tres procedimientos del profe</h4>
+      <div class="tbl"><table>
+        <tr><th>Qué te piden</th><th>Cómo lo resolvió en clase</th></tr>
+        <tr><td>Reducir a mod n</td><td>Dividís a/n en la calculadora, te quedás con la parte decimal y la multiplicás por n. Ejemplo: 42775/977 = 43,7819… → 0,7819… × 977 ≈ 764. Si la calculadora te da el resto directamente, usalo.</td></tr>
+        <tr><td>Potencia grande a<sup>b</sup> mod n</td><td>Si la calculadora muestra "×10<sup>algo</sup>", <b>perdiste los decimales</b>. Partís el exponente en sumas iguales (75 = 3+3+…+3, 25 veces), reducís cada pedazo módulo n y multiplicás los restos, reduciendo cada vez.</td></tr>
+        <tr><td>Inverso a⁻¹ mod n</td><td>Planteás a·x − 1 = k·n y probás x = 1, 2, 3… hasta que k dé entero.</td></tr>
+      </table></div>
+      <p>El método "formal" es el algoritmo de Euclides (extendido). El profe dijo que es el correcto pero que no hace falta: alcanza con el de prueba. <span class="src">25/09</span> En la potencia modular <b>se califica el método, no el número final</b>, y no va a dar números tan grandes como el 427⁷⁵. <span class="src">25/09</span></p>
+      <div class="warn"><b>Aviso sobre la clase del 25/09:</b> en 427⁷⁵ mod 977 se enredaron (multiplicaron 284 × 25 en vez de elevar a la 25). El resultado correcto es <b>246</b>; lo tenés resuelto en la Práctica, P2.</div>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Por qué 26 ≡ 2 (mod 12)?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Porque 26 − 2 = 24 = 2·12 (k = 2, dos vueltas). Con el método de la calculadora: 26/12 = 2,1666…; 0,1666… × 12 = 2.</div></details>
+      <div class="qa"><b>2. ¿Por qué no sirve calcular 66⁷⁷ directamente?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Da un número de unas 140 cifras. La calculadora lo muestra en notación científica y pierde las últimas cifras, que son justo las que definen el resto. Por eso se parte el exponente.</div></details>
+      <div class="qa"><b>3. ¿El inverso modular es único?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Hay infinitos valores que cumplen la congruencia y se repiten con período n (11⁻¹ mod 29: 8, 37, 66…). Dentro de 0…n−1 hay uno solo. En clase el profe usó esto para explicar por qué, sin la clave, no sabés cuál de todos es el correcto. <span class="src">18/09</span> <span class="src">25/09</span></div></details>
+    </div>
+  </details>
+
+  <!-- T2 -->
+  <details class="topic">
+    <summary><h3>T2 · Clave asimétrica: qué da cada clave</h3><span class="tag alta">Alta</span><span class="src">04/09</span></summary>
+    <div class="body">
+      <p><b>En simple:</b> cada persona genera <b>dos claves</b>, una pública (la conoce todo el mundo) y una privada (solo la tiene su dueño). <b>Lo que se cifra con una se descifra solo con la otra</b>, nunca con la misma. No podés deducir una a partir de la otra en un tiempo y costo razonables.</p>
+      <p>Aclaración de nombres: "criptografía de clave pública" es lo mismo que "criptografía asimétrica". La palabra "pública" se usa para el método y también para una de las dos claves. <span class="src">04/09</span></p>
+      <h4>El cuadro que más se confunde</h4>
+      <div class="tbl"><table>
+        <tr><th>Benito cifra con…</th><th>Alicia descifra con…</th><th>Garantiza</th><th>No garantiza</th></tr>
+        <tr><td>la <b>pública de Alicia</b></td><td>su propia privada</td><td><b>Confidencialidad</b> (solo Alicia lo lee) e integridad (si lo tocan, no se entiende)</td><td>Quién lo mandó</td></tr>
+        <tr><td>su <b>propia privada</b></td><td>la pública de Benito</td><td><b>Autenticación del origen / no repudio</b> ("es casi una firma")</td><td>Confidencialidad: cualquiera tiene la pública de Benito</td></tr>
+        <tr><td>su privada <b>y después</b> la pública de Alicia</td><td>su privada y después la pública de Benito</td><td><b>Las dos cosas</b></td><td>No sirve para varios destinatarios (hay que repetirlo para cada uno)</td></tr>
+      </table></div>
+      <p><b>Desventaja:</b> es <b>lenta</b> y consume muchos recursos. Por eso no se usa para cifrar mensajes grandes sino para transportar una clave simétrica (T5).</p>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. V o F: "Todo el mundo puede descifrar lo cifrado con la clave pública".</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner"><b>Falso.</b> Lo cifrado con la pública solo se descifra con la privada correspondiente, que tiene únicamente su dueño. Este V/F lo hicieron en clase. <span class="src">04/09</span></div></details>
+      <div class="qa"><b>2. Si cifrar con la privada no da confidencialidad, ¿para qué sirve?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Para demostrar quién lo mandó. Si la pública de Benito lo descifra, solo pudo cifrarlo el dueño de la privada de Benito. Es la base de la firma digital y del no repudio.</div></details>
+      <div class="qa"><b>3. ¿Es más segura la asimétrica que la simétrica?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner"><b>No necesariamente.</b> Depende del algoritmo y del largo de la clave, no del tipo. La ventaja real de la simétrica es la velocidad. El profe lo preguntó en clase y lo dio como ejemplo de pregunta oral. <span class="src">11/09</span> <span class="src">25/09</span></div></details>
+    </div>
+  </details>
+
+  <!-- T3 -->
+  <details class="topic">
+    <summary><h3>T3 · RSA</h3><span class="tag alta">Alta</span><span class="src">04/09</span><span class="src">11/09</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>En simple:</b> RSA (Rivest, Shamir, Adleman, del MIT) cifra <b>números</b>: C = M<sup>e</sup> mod n y descifra con M = C<sup>d</sup> mod n. Funciona porque e·d ≡ 1 (mod φ): elevar a e y después a d te devuelve M.</p>
+      <h4>Generación de claves, de memoria</h4>
+      <ol class="steps">
+        <li>Elegís dos primos <b>p</b> y <b>q</b>. En la realidad tienen más de 200 cifras; en el parcial, "dos números chiquitos". <span class="src">25/09</span></li>
+        <li><b>n = p·q</b>: es el módulo.</li>
+        <li><b>φ = (p−1)(q−1)</b>: el "número de Euler".</li>
+        <li>Elegís <b>e</b> coprimo con φ, es decir, sin factores comunes (mcd(e, φ) = 1).</li>
+        <li>Calculás <b>d</b> tal que <b>d·e ≡ 1 (mod φ)</b>. Es el inverso modular de T1.</li>
+        <li>Clave pública <b>{e, n}</b> y clave privada <b>{d, n}</b>. Una clave son <b>siempre dos números</b>: el exponente y el módulo. <span class="src">04/09</span></li>
+      </ol>
+      <p><b>Ejemplo de clase:</b> p=7, q=17 → n=119, φ=96, e=5 → d=77 (5·77 = 385 = 4·96 + 1). Cifrar 19: 19⁵ mod 119 = 66. Descifrar: 66⁷⁷ mod 119 = 19.</p>
+      <h4>Mensajes con letras (base 26)</h4>
+      <p>Cada letra vale su posición (A=0 … Z=25). Una palabra se pasa a número con potencias de 26: YES = 24·26² + 4·26 + 18 = 16346. El número <b>no puede superar n</b>, así que si 26<sup>k</sup> &gt; n, cortás el texto en bloques de k letras. Con n = 46927: 26³ = 17576 &lt; n y 26⁴ = 456976 &gt; n, así que los bloques son de 3 letras. Para volver a letras dividís sucesivamente por 26³, 26², 26 y 1. <span class="src">11/09</span></p>
+      <p><b>Por qué es segura</b> <span class="comp">complemento</span>: con n y e públicos, para sacar d necesitás φ, y para φ necesitás factorizar n en p·q. Con primos enormes eso es inviable. En clase se dijo "factorizar números primos grandes"; lo exacto es factorizar el <b>producto</b> de dos primos grandes.</p>
+      <div class="warn">En la clase del 11/09 el audio dice "3943", pero la clave del ejemplo YES es <b>e = 39423</b> (así figura en el PDF de Complementos). Ese ejemplo completo está en Práctica, P6.</div>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Qué parte de la clave es secreta además de d?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">p, q y φ. Si alguien conoce φ, calcula d como inverso de e. <span class="comp">complemento</span> (figura en el PDF de Complementos)</div></details>
+      <div class="qa"><b>2. ¿Por qué e tiene que ser coprimo con φ?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Porque si no lo es, no existe d con d·e ≡ 1 (mod φ), y no podrías descifrar.</div></details>
+      <div class="qa"><b>3. Con n = 119, ¿cuántas letras entran en un bloque?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Una sola: 26¹ = 26 &lt; 119, pero 26² = 676 &gt; 119.</div></details>
+    </div>
+  </details>
+
+  <!-- T4 -->
+  <details class="topic">
+    <summary><h3>T4 · Intercambio de claves Diffie-Hellman</h3><span class="tag alta">Alta</span><span class="src">11/09</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>En simple:</b> Alicia y Benito quieren usar <b>clave simétrica</b> (rápida) pero no pueden llevarse la clave en persona. Diffie-Hellman les permite <b>acordar el mismo número sin enviarlo nunca</b>. No es clave pública/privada: el profe lo aclaró cuando un compañero se confundió. <span class="src">11/09</span></p>
+      <h4>Pasos</h4>
+      <ol class="steps">
+        <li><b>Público:</b> acuerdan un primo <b>G</b> (el módulo) y un generador <b>α</b> &lt; G.</li>
+        <li>Alicia elige un secreto <b>a</b>, calcula <b>A = α<sup>a</sup> mod G</b> y lo envía.</li>
+        <li>Benito elige un secreto <b>b</b>, calcula <b>B = α<sup>b</sup> mod G</b> y lo envía.</li>
+        <li>Alicia calcula <b>B<sup>a</sup> mod G</b> y Benito calcula <b>A<sup>b</sup> mod G</b>. <b>Les da lo mismo</b>, porque (α<sup>b</sup>)<sup>a</sup> = (α<sup>a</sup>)<sup>b</sup> = α<sup>ab</sup>. Esa es la clave.</li>
+      </ol>
+      <p><b>Ejemplo de clase:</b> G=53, α=2, a=29, b=19 → A=45, B=12 → clave <b>21</b>. Un espía ve 53, 2, 45 y 12, pero no puede calcular 21 sin saber 29 o 19.</p>
+      <p>"Una cosa de estas seguro se va a tomar… es bastante posible" <span class="src">25/09</span>. También dijo: "es el ejercicio que siempre sacan bien, solo hay que ser prolijo con los números". <span class="src">11/09</span></p>
+      <p><span class="comp">complemento</span> Su seguridad se basa en lo difícil que es el <b>logaritmo discreto</b>: dado α<sup>a</sup> mod G, obtener a. Con números chicos se puede "romper" probando, y hay un ejercicio así en el PDF de Complementos (Práctica, P7).</p>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Qué datos viajan por la red?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">G, α, A y B. Nunca viajan a, b ni la clave final.</div></details>
+      <div class="qa"><b>2. ¿Qué problema resuelve y cuál de los mecanismos anteriores evita?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Resuelve la distribución de la clave simétrica. Evita depender de un KDC (tercero confiable) y del esquema híbrido con RSA ("ese dibujito grande"). <span class="src">11/09</span></div></details>
+    </div>
+  </details>
+
+  <!-- T5 -->
+  <details class="topic">
+    <summary><h3>T5 · Hash, firma digital y esquema híbrido</h3><span class="tag alta">Alta</span><span class="src">04/09</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>Función hash:</b> toma un mensaje de <b>cualquier tamaño</b> y devuelve un <b>resumen de largo fijo</b> (128, 256, 512 bits…). Siempre da lo mismo para el mismo texto, y <b>no es reversible</b>: del resumen no se vuelve al mensaje. El que se envía junto al mensaje permite detectar si lo modificaron.</p>
+      <p><b>¿Puede haber dos textos con el mismo hash?</b> <b>Sí, infinitos.</b> Los textos posibles son infinitos y los resúmenes son finitos (2²⁵⁶). La mayoría de esas colisiones son textos sin sentido. El profe dijo que es una pregunta que toma en el oral. <span class="src">25/09</span> Sobre eso se apoya el <b>ataque del cumpleaños</b> <span class="comp">complemento</span>: buscar dos mensajes con igual hash cuesta del orden de 2<sup>n/2</sup> intentos, no 2<sup>n</sup>.</p>
+      <p><b>Firma digital:</b> <b>firma = hash del mensaje cifrado con la clave privada del emisor</b>. La privada prueba quién firmó y el hash prueba qué documento se firmó. El receptor descifra la firma con la pública del emisor, recalcula el hash y compara. Los dos algoritmos que se nombraron son RSA y DSA; DSA se basa en el logaritmo discreto. <span class="comp">complemento</span> (en clase se dijo "logaritmos de primos")</p>
+      <h4>Esquema híbrido completo (el diagrama grande)</h4>
+      <ol class="steps">
+        <li>Hash del mensaje → cifrado con la <b>privada del emisor</b> = <b>firma</b>.</li>
+        <li>Mensaje + firma → cifrados con una <b>clave simétrica</b> que elige el emisor (es rápido).</li>
+        <li>Esa clave simétrica → cifrada con la <b>pública del receptor</b>, y se envía junto.</li>
+        <li>El receptor abre la clave simétrica con su privada, descifra el mensaje, recalcula el hash y lo compara con la firma (descifrada con la pública del emisor). Si coinciden, está bien. Si no, lo modificaron o hubo ruido en el canal.</li>
+      </ol>
+      <div class="note">Resumen: la simétrica cifra el mensaje (por velocidad), la asimétrica transporta la clave y la firma, y el hash da integridad.</div>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. V o F: "Para firmar se cifra el mensaje con la clave pública del destinatario".</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner"><b>Falso.</b> Firmar requiere algo que tenga solo el firmante, es decir, su <b>privada</b>. Lo correcto es "se cifra un resumen del mensaje con la clave privada". <span class="src">04/09</span></div></details>
+      <div class="qa"><b>2. ¿Cómo puede ir un mensaje hacia el hash y no volver?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">El hash comprime: muchísimos mensajes caen en el mismo resumen, así que se pierde información y no hay un único camino de vuelta. El profe avisó que iba a preguntar esto. <span class="src">04/09</span></div></details>
+      <div class="qa"><b>3. ¿Por qué en el híbrido no se cifra todo con RSA?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Porque la asimétrica es lenta. Se usa solo para la clave de sesión y la firma, que son chicas.</div></details>
+    </div>
+  </details>
+
+  <!-- T6 -->
+  <details class="topic">
+    <summary><h3>T6 · Criptografía clásica: sustitución y transposición</h3><span class="tag alta">Alta</span><span class="src">28/08</span><span class="src">04/09</span><span class="src">18/09</span></summary>
+    <div class="body">
+      <p><b>Idea base:</b> todo criptosistema tiene un <b>algoritmo</b> (el procedimiento) y una <b>clave</b>. En sistemas comerciales <b>el algoritmo es público y la clave es secreta</b>: que sea público permite que todos lo prueben y le da robustez. En la escítala (la varilla), el protocolo es enrollar el papel y la clave es el diámetro. <span class="src">28/08</span></p>
+      <div class="tbl"><table>
+        <tr><th></th><th>Sustitución</th><th>Transposición</th></tr>
+        <tr><td>Qué hace</td><td>Cambia cada letra por otra</td><td>Deja las mismas letras y cambia el orden ("las mete en una bolsa")</td></tr>
+        <tr><td>Ejemplos</td><td>César, monoalfabético, Vigenère, Playfair</td><td>Columnar con clave numérica o palabra (VAMPIRO, TOSHIVA)</td></tr>
+        <tr><td>Frecuencias del cifrado</td><td>La E ya no es la más frecuente (la reemplazó otra letra)</td><td><b>La E sigue siendo la más frecuente</b>: las letras son las mismas</td></tr>
+      </table></div>
+      <p><b>Cómo distinguirlas</b> (lo preguntó en clase): contás las letras del cifrado. Si la más frecuente sigue siendo la E (en español y en inglés), es transposición. Si es una letra rara, como la H o la B, es sustitución. <span class="src">28/08</span></p>
+      <h4>Los sistemas uno por uno</h4>
+      <ul>
+        <li><b>César:</b> desplazar el alfabeto. El original usaba clave D (3 lugares): PERRO → SHUUR. Con A=0: C = (P + k) mod 26. Por fuerza bruta alcanza con <b>25 pruebas</b>, 12 en promedio.</li>
+        <li><b>Monoalfabético:</b> el alfabeto de abajo está desordenado. Tiene unas 4·10²⁶ claves, pero cae en minutos con <b>información lateral</b>: frecuencia de letras (E y A en español), pares frecuentes (TH en inglés) y palabras probables ("petróleo" en un contrato petrolero).</li>
+        <li><b>Vigenère:</b> "varios Césares", uno por letra de la clave que se repite. Con clave WIND: la 1.ª letra con W, la 2.ª con I, la 3.ª con N, la 4.ª con D y vuelve a empezar. El largo de la clave es el período. Se ataca buscando repeticiones (método de Kasiski). <span class="src">04/09</span> <span class="comp">complemento</span> Las diapositivas muestran la variante Beaufort (C = K − P); en clase se explicó con suma.</li>
+        <li><b>Transposición columnar:</b> escribís en filas debajo de la clave y leés las columnas en el orden alfabético de la clave. VAMPIRO → A=1, I=2, M=3, O=4, P=5, R=6, V=7. Para descifrar: <b>cantidad de letras ÷ largo de la clave</b>. Te da cuántas letras tiene cada columna, y las primeras columnas (de izquierda a derecha en la palabra clave) se llevan una letra extra si sobra resto.</li>
+        <li><b>Playfair:</b> una matriz de 5×5 (I y J juntas) con la palabra clave sin repetir letras, completada con el resto del alfabeto. Se cifra de a pares de letras (CR → SU, esquinas opuestas del rectángulo).</li>
+      </ul>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Qué es un ataque por fuerza bruta?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Probar todas las claves posibles hasta que el texto se lea. En César son 25. Para el TP el profe no acepta "fuerza bruta" como explicación: quiere que justifiques con estadísticas. <span class="src">28/08</span> <span class="src">04/09</span></div></details>
+      <div class="qa"><b>2. En transposición, ¿importan los espacios o los grupos de 5 letras del cifrado?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">No. Se agrupa solo para que sea más legible. El espacio solo tiene significado en esteganografía. <span class="src">04/09</span> <span class="src">18/09</span></div></details>
+      <div class="qa"><b>3. ¿Por qué el monoalfabético, con 4·10²⁶ claves, se rompe en minutos?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Porque conserva la estadística del idioma (información lateral). No hace falta probar las claves: se deduce letra por letra.</div></details>
+    </div>
+  </details>
+
+  <!-- T7 -->
+  <details class="topic">
+    <summary><h3>T7 · Entropía, estadísticas y CrypTool</h3><span class="tag alta">Alta</span><span class="src">28/08</span><span class="src">04/09</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>Entropía (en criptografía):</b> mide la <b>aleatoriedad o imprevisibilidad</b> de un texto: cuánto podés predecir la letra que sigue. Mucha repetición significa entropía baja (AAAAAANNNNNAAAAA ≈ 0). Letras variadas y parejas significan entropía alta. Cada idioma tiene su entropía, así que podés saber en qué idioma está un texto sin descifrarlo. El máximo para 26 letras es ≈ 4,7. <span class="src">25/09</span> <span class="src">04/09</span></p>
+      <ul>
+        <li><b>Frecuencia de letras / histograma:</b> cuánto aparece cada letra.</li>
+        <li><b>N-gramas:</b> pares (digramas) y tríos (trigramas) frecuentes. En inglés TH y AND; en español LA, DE, EL. <span class="src">04/09</span></li>
+        <li><b>Autocorrelación:</b> cuánto se parece un texto a sí mismo cuando lo desplazás. Sirve para detectar el período de un Vigenère. <span class="src">28/08</span></li>
+      </ul>
+      <h4>Pregunta que el profe anticipó: "¿La entropía es la misma en el texto plano que en el cifrado?"</h4>
+      <p><span class="comp">complemento</span> <b>Depende del cifrado.</b> En <b>César, monoalfabético y transposición es la misma</b>: la entropía de CrypTool mide la distribución de letras, y la sustitución simple solo cambia el nombre de las letras (el histograma se reordena), mientras que la transposición no cambia ninguna letra. En <b>Vigenère y en los cifrados modernos aumenta</b> hacia el máximo, porque aplanan las frecuencias. Probalo en CrypTool con un texto y su César y vas a ver el mismo valor.</p>
+      <div class="warn"><b>Parte confusa del 25/09:</b> en clase "feliz cumpleaños" dio 3,52 y un texto "raro" con símbolos dio 2,72, menos de lo esperado. <span class="comp">complemento</span> Lo más probable es que CrypTool solo cuente las letras del alfabeto configurado e ignore símbolos y números, así que ese texto tenía muy pocas letras. Para tu ejemplo de entropía alta usá muchas letras distintas y repartidas (un párrafo cifrado con Vigenère), no símbolos.</div>
+      <h4>CrypTool 1.4, lo mínimo</h4>
+      <ul>
+        <li><b>Cifrar/Descifrar → Simétrico (clásico) → César</b>: elegís la letra clave (D = 3) y si A vale 0 o 1. Hay botones Cifrar y Descifrar. <span class="src">28/08</span></li>
+        <li><b>Análisis → Herramientas → Entropía / Histograma / N-grama / Autocorrelación</b>. <span class="src">28/08</span></li>
+        <li><b>Análisis → Cifrado simétrico (clásico) → Solo texto cifrado → César</b>: lo resuelve automáticamente. Así lo hizo un compañero con el TP1. <span class="src">28/08</span></li>
+        <li><b>Ayuda → Índice:</b> ahí están las definiciones de entropía y autocorrelación que pide el profe.</li>
+        <li><span class="comp">complemento</span> La transposición y la demostración de RSA también están en los menús de Cifrar/Descifrar y de Procedimientos individuales. Verificá hoy los nombres exactos en tu versión para no buscarlos durante el parcial.</li>
+        <li>Entrega: <b>captura de pantalla completa → PDF</b>. <span class="src">25/09</span></li>
+      </ul>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. Escribí un texto de entropía baja y otro de alta.</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Baja: "AAAA NNNN AAAA" (predecible). Alta: un párrafo largo cifrado con Vigenère, con letras variadas y parejas. Después lo comprobás en CrypTool con Análisis → Entropía.</div></details>
+      <div class="qa"><b>2. ¿Qué te dice la autocorrelación de un Vigenère?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Aparecen picos cada tantas posiciones, y esa distancia sugiere el largo de la clave (el período).</div></details>
+    </div>
+  </details>
+
+  <!-- T8 -->
+  <details class="topic">
+    <summary><h3>T8 · Políticas de seguridad</h3><span class="tag alta">Alta</span><span class="src">14/08</span><span class="src">21/08</span><span class="src">25/09</span></summary>
+    <div class="body">
+      <p><b>Definición:</b> una política de seguridad es un documento de <b>alto nivel</b> que dice <b>qué</b> se debe proteger y qué se permite o no. No dice <b>cómo</b>: "se debe proteger tal sistema", no "pongo un firewall de tal modelo en tal lugar". Lo detallado paso a paso son los <b>procedimientos</b>, las <b>guías</b> dan buenas prácticas y los <b>estándares</b> (NIST, ISO) se toman como marco. <span class="src">14/08</span></p>
+      <p><b>"Todo tiene que estar relacionado con la política de seguridad."</b> <span class="src">21/08</span></p>
+      <div class="grid2">
+        <div class="box"><b>Funciones</b> <span class="src">14/08</span>
+          <ul><li><b>Consistencia:</b> todos reaccionan igual</li><li><b>Distribuye conocimiento:</b> todos los interesados la conocen</li><li><b>Marca límites:</b> qué se puede y qué no</li><li><b>Fija sanciones</b> para quien no cumple</li><li><b>Es un elemento vivo:</b> evoluciona con la organización</li></ul></div>
+        <div class="box"><b>Características</b> <span class="src">14/08</span> (y diapositivas)
+          <ul><li>Lenguaje claro, que la entienda desde el doctor hasta el empleado que entró ayer</li><li><b>Sin ambigüedades, taxativa:</b> "debe tener al menos 8 caracteres", no "es conveniente"</li><li>Pocas sentencias por política</li><li>Por escrito, con número de revisión, cambios, quién la aprobó, propósito, ámbito y responsabilidades</li><li><b>Un responsable</b>: "si todos somos responsables, nadie lo es"</li><li>Capacitación, boletines y auditorías periódicas</li></ul></div>
+      </div>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Es válida "Es conveniente cambiar la contraseña cada tanto"?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">No. Es ambigua: "conveniente" y "cada tanto" no obligan a nada. Una versión válida: "La contraseña debe cambiarse cada 90 días". Este tipo de ejercicio lo anunció el profe. <span class="src">25/09</span></div></details>
+      <div class="qa"><b>2. ¿Qué característica tiene que tener una buena política? (pregunta de oral)</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Respuesta corta: clara, sin ambigüedades, de alto nivel, consistente para todos, con responsable y sanciones, por escrito y actualizada. <span class="src">25/09</span></div></details>
+    </div>
+  </details>
+
+  <!-- T9 -->
+  <details class="topic">
+    <summary><h3>T9 · Tríada CIA y conceptos adicionales</h3><span class="tag alta">Alta</span><span class="src">14/08</span><span class="src">28/08</span></summary>
+    <div class="body">
+      <p>"Nadie puede decir que sabe de seguridad informática si no conoce la tríada CIA." Un ataque a cualquiera de las tres es un ataque a todo el sistema. <span class="src">14/08</span></p>
+      <div class="tbl"><table>
+        <tr><th>Propiedad</th><th>Qué significa</th><th>Ejemplo de ataque</th><th>Defensa típica</th></tr>
+        <tr><td><b>Confidencialidad</b></td><td>Solo los autorizados acceden. <b>No confundir con confiabilidad.</b></td><td>Alguien lee un mail que no era para él</td><td>Criptografía</td></tr>
+        <tr><td><b>Integridad</b></td><td>El mensaje no fue modificado. No se puede impedir que lo cambien, pero sí detectarlo.</td><td>Cambiar el monto de una transferencia</td><td>Hash, firma</td></tr>
+        <tr><td><b>Disponibilidad</b></td><td>La información está donde y cuando se necesita</td><td>Saturar el servidor de ventas (DoS)</td><td>Redundancia</td></tr>
+      </table></div>
+      <ul>
+        <li><b>Autenticidad:</b> quien manda es quien dice ser.</li>
+        <li><b>No repudio:</b> no poder negar que enviaste (o recibiste) algo. Ejemplo del profe: pedís 100.000 tornillos especiales y después negás haberlos pedido.</li>
+        <li><b>Protección contra duplicación:</b> que no reenvíen tu pedido 5 veces (10.000 → 50.000 tornillos).</li>
+        <li><b>Auditabilidad:</b> registrar todo para reconstruir después qué pasó.</li>
+        <li>Diapositivas: legalidad y confiabilidad de la información.</li>
+      </ul>
+      <h4>Preguntas de repaso</h4>
+      <div class="qa"><b>1. ¿Qué propiedad da la criptografía asimétrica que la simétrica no da fácilmente?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">El no repudio y la autenticación del origen (con la privada del emisor). Además hace más fácil la confidencialidad. <span class="src">28/08</span></div></details>
+      <div class="qa"><b>2. Interceptan un mensaje y lo reenvían más tarde. ¿Qué propiedad se viola?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">La protección contra duplicación. En la clasificación de ataques es una "fabricación" a partir de algo robado. <span class="src">14/08</span></div></details>
+    </div>
+  </details>
+
+  <!-- T10 -->
+  <details class="topic">
+    <summary><h3>T10 · Simétrica vs. asimétrica y KDC</h3><span class="tag media">Media</span><span class="src">28/08</span><span class="src">11/09</span></summary>
+    <div class="body">
+      <div class="tbl"><table>
+        <tr><th></th><th>Simétrica (clave única)</th><th>Asimétrica (clave pública)</th></tr>
+        <tr><td>Claves</td><td>Una, la misma para cifrar y descifrar</td><td>Dos por usuario: pública y privada</td></tr>
+        <tr><td>Velocidad</td><td><b>Rápida</b></td><td><b>Lenta</b></td></tr>
+        <tr><td>Problema</td><td><b>Cómo hacer llegar la clave</b>: si tuvieras un canal seguro, mandarías el mensaje por ahí</td><td>Costo de cómputo</td></tr>
+        <tr><td>Da</td><td>Confidencialidad</td><td>Confidencialidad, autenticación y no repudio</td></tr>
+      </table></div>
+      <p>Con n personas hacen falta n(n−1)/2 claves simétricas; con 100 personas, 4950. (dato de las diapositivas)</p>
+      <h4>KDC (Key Distribution Center), paso a paso</h4>
+      <p>Alicia y Benito ya tienen cada uno una clave propia compartida con el KDC (Ka y Kb), obtenida en persona.</p>
+      <ol class="steps">
+        <li>Alicia → KDC: pedido + <b>N1</b> (un número de control, "nonce").</li>
+        <li>KDC → Alicia, todo cifrado con <b>Ka</b>: [clave de sesión <b>Ks</b>, el pedido, N1, y <b>E<sub>Kb</sub>[Ks, ID de Alicia]</b>].</li>
+        <li>Alicia lee Ks. No puede leer la parte cifrada con Kb, y se la reenvía a Benito.</li>
+        <li>Benito la descifra con Kb, obtiene Ks y sabe que es Alicia porque lo avala el KDC, que es un tercero confiable. Usan Ks durante esa sesión.</li>
+      </ol>
+      <p><b>Por qué la manda Alicia y no el KDC</b> (pregunta de un compañero): hay variantes. Esta marca que Alicia inicia la comunicación y define el momento. <span class="src">28/08</span> <b>Debilidad:</b> ¿cuán confiable es el tercero? Si lo hackean, caen todas las claves. Eso motivó la clave pública. <span class="src">28/08</span></p>
+      <p>"Explicar cómo el KDC distribuye las claves se puede pedir." <span class="src">11/09</span></p>
+      <h4>Pregunta de repaso</h4>
+      <div class="qa"><b>¿Para qué sirve el nonce N1?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Para que Alicia sepa a qué pedido corresponde la respuesta. <span class="comp">complemento</span> También evita que le reenvíen una respuesta vieja (repetición).</div></details>
+    </div>
+  </details>
+
+  <!-- T11 -->
+  <details class="topic">
+    <summary><h3>T11 · Incondicional vs. computacionalmente seguro; one-time pad</h3><span class="tag media">Media</span><span class="src">28/08</span><span class="src">18/09</span></summary>
+    <div class="body">
+      <div class="tbl"><table>
+        <tr><th>Incondicionalmente seguro</th><th>Computacionalmente seguro</th></tr>
+        <tr><td>No se rompe <b>nunca</b>, ni con tiempo ni con potencia infinitos, ni con computadoras cuánticas</td><td>Romperlo <b>cuesta más</b> de lo que vale el secreto, o <b>tarda más</b> que la vida útil del secreto (por ejemplo, una patente de 20 años)</td></tr>
+        <tr><td>Ejemplo: <b>one-time pad</b> (cifrado de Vernam)</td><td>Los que se usan comercialmente</td></tr>
+      </table></div>
+      <p><b>One-time pad:</b> texto en binario XOR una clave aleatoria <b>al menos tan larga como el texto</b> y <b>usada una sola vez</b>. Es indescifrable porque, para cualquier texto plano del mismo largo, existe una clave que lo produce, así que no hay forma de saber cuál es el verdadero. Si la clave es más corta y se repite, aparece un período y se convierte en "varios Césares" que se pueden romper. Es poco práctico (hace falta un libro de claves enorme) y se usa en ámbitos militares. <span class="src">18/09</span></p>
+      <p>XOR: 0⊕0=0, 0⊕1=1, 1⊕0=1, 1⊕1=0. Cifrar y descifrar son la misma operación.</p>
+      <p><b>Computación cuántica</b> <span class="src">28/08</span>: puede bajar los tiempos de ruptura, pero duplicar el largo de la clave le cuesta casi nada al que cifra y dispara el costo del que ataca.</p>
+      <h4>Pregunta de repaso</h4>
+      <div class="qa"><b>¿Por qué el one-time pad no se puede reutilizar?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Porque al repetir la clave aparece periodicidad, y con ella información lateral para atacarlo.</div></details>
+    </div>
+  </details>
+
+  <!-- T12 -->
+  <details class="topic">
+    <summary><h3>T12 · Terminología y gestión de riesgo</h3><span class="tag media">Media</span><span class="src">14/08</span><span class="src">21/08</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Activo:</b> todo lo que tiene valor para la empresa: datos, software a medida, personal, equipos. Los <b>datos</b> son el activo más valioso; el hardware se reemplaza fácil.</li>
+        <li><b>Vulnerabilidad:</b> una debilidad (usar el año actual como contraseña).</li>
+        <li><b>Amenaza:</b> un peligro <b>potencial</b>, cercano o remoto (restos de una nave espacial que te caen encima).</li>
+        <li><b>Exploit:</b> el mecanismo para aprovechar una vulnerabilidad.</li>
+        <li><b>Riesgo = probabilidad × impacto.</b> Que se roben clips es muy probable pero de impacto nulo, así que el riesgo es bajo. Un meteorito tiene impacto enorme pero probabilidad casi nula, así que el riesgo también es bajo. Hay que preocuparse cuando <b>las dos son altas</b>.</li>
+        <li><b>No existe el riesgo cero.</b> <b>Apetito de riesgo:</b> cuánto riesgo acepta la empresa (lo decide la alta gerencia o el CISO). <b>Riesgo residual:</b> el que queda después de aplicar los controles.</li>
+      </ul>
+      <div class="tbl"><table>
+        <tr><th>Respuesta al riesgo</th><th>Qué es</th><th>Ejemplo</th></tr>
+        <tr><td>Mitigación (la más común)</td><td>Aplicar controles hasta llegar al nivel aceptable</td><td>Contraseña + doble factor</td></tr>
+        <tr><td>Transferencia</td><td>Pasar el riesgo a otro</td><td>Contratar un seguro</td></tr>
+        <tr><td>Aceptación</td><td>Asumirlo a conciencia, después de evaluarlo</td><td>Proteger sale más caro que la pérdida</td></tr>
+        <tr><td>Terminación (evitar)</td><td>Dejar la actividad</td><td>No entrar en un rubro riesgoso</td></tr>
+      </table></div>
+      <p>Pasos: <b>primero identificar los activos</b> (y su costo de reposición e imagen), después las amenazas y vulnerabilidades, analizar P×I, evaluar contra el apetito de riesgo y tratar. Además: plan de respuesta a incidentes, continuidad (backups), recuperación y manejo de crisis. Herramientas: OCTAVE, ISO 27000, NIST (identificar, proteger, detectar, responder, recuperar) y el <b>tabletop</b> (un simulacro de "¿qué pasa si…?" alrededor de una mesa, con facilitador e "injects").</p>
+      <h4>Pregunta de repaso</h4>
+      <div class="qa"><b>Te contratan para evaluar la seguridad de una empresa. ¿Qué hacés primero?</b></div>
+      <details class="sol"><summary>Ver respuesta</summary><div class="inner">Después de acordar cuánto te pagan (el chiste del profe), <b>identificar los activos y su valor</b>. <span class="src">21/08</span></div></details>
+    </div>
+  </details>
+
+  <!-- T13 -->
+  <details class="topic">
+    <summary><h3>T13 · Principios, ataques y respuestas</h3><span class="tag media">Media</span><span class="src">14/08</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Seguridad de la información vs. seguridad informática:</b> la primera es la gestión (normas, políticas, conducción) y la segunda es la parte técnica (virus, contraseñas).</li>
+        <li><b>La información</b> se mide en bits y se relaciona <b>en forma inversa con la probabilidad</b>: "mañana es sábado" no informa nada. Tiene un ciclo de vida (se procesa, se transporta, se almacena, se archiva, se destruye) y hay que protegerla en cada etapa, destrucción incluida.</li>
+        <li><b>Tipos de ataque:</b> interrupción (ataca la disponibilidad), intercepción (confidencialidad), modificación (integridad) y fabricación (autenticidad). Todo otro ataque es una subcategoría de estos. Los <b>pasivos</b> escuchan sin que la víctima lo note; en los <b>activos</b> la víctima se da cuenta.</li>
+        <li><b>Causas de incidentes:</b> negligencia, accidente, desconocimiento de la política o ataque deliberado.</li>
+        <li><b>Proteger y continuar</b> (lo típico: bancos, empresas chicas y medianas): cerrar todo, arreglar y seguir, sin hacerlo público. <b>Perseguir y demandar</b> (Google, el Pentágono): dejar al intruso bajo vigilancia en una "caja de arena" para juntar pruebas. Requiere leyes que lo permitan, y el atacante suele estar en otro país.</li>
+        <li><b>Necesidad de saber:</b> solo se da acceso a quien lo necesita para trabajar. "Una de las pocas cosas que se tienen que quedar grabadas a fuego."</li>
+        <li><b>Educar, no entrenar</b>, y hacerlo de forma continua por la curva del olvido.</li>
+        <li><b>Equipo de seguridad:</b> grupo ejecutivo (CIO/CISO: autoridad y visión a largo plazo), grupo de riesgos (OCTAVE), grupo de seguridad (el día a día) y auditoría (verifica que se cumpla). Blue team y red team.</li>
+        <li><b>Dos tipos de empresas:</b> las que ya fueron atacadas y las que no saben que ya fueron atacadas.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- T14 -->
+  <details class="topic">
+    <summary><h3>T14 · Auditoría vs. hacking ético</h3><span class="tag media">Media</span><span class="src">21/08</span></summary>
+    <div class="body">
+      <div class="tbl"><table>
+        <tr><th>Auditoría</th><th>Hacking ético (pentest)</th></tr>
+        <tr><td>Un checklist: valida que los controles existan y que se cumplan los procedimientos</td><td>Busca vulnerabilidades; es menos estructurado y más libre</td></tr>
+        <tr><td>Verifica que "lo que se dijo que se iba a hacer se haga"</td><td>Tiene <b>permiso escrito</b> que detalla qué puede y qué no. Usa las mismas técnicas que un hacker, lleva seguro y entrega un <b>informe con sugerencias</b> (lo más importante)</td></tr>
+      </table></div>
+      <ul>
+        <li><b>Caja negra:</b> el tester no sabe nada del objetivo. <b>Gris:</b> sabe una parte. <b>Blanca:</b> sabe mucho. En todos los casos el cliente (el gerente) sabe cuándo y qué tipo de prueba se hace, pero <b>al equipo de IT no se le avisa</b>.</li>
+        <li>Se hace una o dos veces por año, para no perturbar la operación.</li>
+        <li>El atacante tiene tiempo ilimitado y le basta encontrar <b>una</b> falla. El defensor tiene tiempo limitado y tiene que cubrir <b>todas</b>, incluso las desconocidas (<b>día cero</b>).</li>
+        <li>El defensor <b>nunca puede contraatacar</b>: solo defenderse y juntar pruebas para una acción legal.</li>
+        <li>Recursos: NIST/NVD, CVE (catálogo de vulnerabilidades), CVSS (puntaje de gravedad), exploit-db, MITRE.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- T15 -->
+  <details class="topic">
+    <summary><h3>T15 · Otros temas de simétrica</h3><span class="tag media">Media</span><span class="src">28/08</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Cifrado en bloque (Feistel):</b> se divide el bloque en mitad izquierda y derecha. En cada ronda, la derecha pasa a ser la nueva izquierda, y la izquierda XOR (derecha cifrada) pasa a ser la nueva derecha. Se repite unas 16 veces.</li>
+        <li><b>DES:</b> bloques de 64 bits y cajas S. No tuvo éxito porque las cajas S eran secretas, lo que contradice que "el algoritmo debe ser público": se sospechaba debilidad o una puerta trasera. Ya fue roto. <b>3DES</b> es un DES tras otro con claves distintas. <span class="comp">complemento</span> La clave de DES es de 56 bits.</li>
+        <li><b>Confidencialidad del tráfico:</b> ocultar también cuándo se envía, cuánto y cada cuánto. El cifrador transmite basura aleatoria cuando no hay mensaje, así que siempre sale "texto".</li>
+        <li><b>Esteganografía (ocultamiento):</b> esconder un mensaje dentro de otro: tinta invisible, primera letra de cada palabra, el <b>bit menos significativo</b> de cada píxel de una foto de 24 bits (el color no cambia a la vista). En clase: "IR HOY AL BANCO" escondido en las mayúsculas.</li>
+        <li><b>Historia:</b> escítala (Egipto/Grecia), César (Roma) y Enigma (Segunda Guerra Mundial, descifrada con la computadora de Alan Turing).</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- T16 -->
+  <details class="topic">
+    <summary><h3>T16 · Delitos informáticos y contexto (solo multiple choice)</h3><span class="tag baja">Baja</span><span class="src">21/08</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Cada segundo, 18 adultos</b> son víctimas de un delito informático (informe CERT; diapositiva: US$ 110.000 millones en 12 meses).</li>
+        <li><b>Tres preguntas ante un ataque:</b> ¿de dónde viene? (difícil: IP falsas, botnets, cadenas de países), ¿cómo, quién y cuándo se construyó el software? y ¿cuál es el propósito? (lo más fácil de averiguar).</li>
+        <li><b>Botnet / máquinas zombie:</b> equipos infectados que un atacante controla. Se alquilan en la dark web para hacer un <b>DDoS</b> (muchas máquinas saturan a una víctima).</li>
+        <li><b>Problema de legislación:</b> el delincuente está en el país A, usa recursos del país B y ataca al país C.</li>
+        <li><b>SCADA:</b> sistemas industriales que controlan sensores a distancia. <b>Stuxnet</b> falseó mediciones de sensores y fue el primer salto de un ataque informático a daño físico. Alrededor del 41 % de los ataques SCADA van a plantas de agua. Toda invasión empieza hoy con un ciberataque (Rusia–Ucrania); Estonia es el país más informatizado y por eso muy vulnerable.</li>
+        <li><b>Latinoamérica:</b> Argentina recibe alrededor del <b>14 %</b> de los ataques de la región (diapositiva: 1.º Colombia 21,7 %, 2.º Argentina 14 %). Los sectores más comprometidos son finanzas, gobierno y telecomunicaciones. Que un país sea vulnerable no es lo mismo que sea atacado.</li>
+        <li><b>Motivos del hacker:</b> curiosidad o desafío, trofeo, <b>dinero</b> (el principal), ransomware, motivos políticos o religiosos y ataques con IA. <b>Ransomware:</b> te cifran los datos y cobran por la clave; en general la entregan, "para no tener mal antecedente". Si tenés backup y no robaron los datos, no dependés de pagar.</li>
+        <li><b>Qué necesita el atacante:</b> errores en las aplicaciones (se corrigen con parches, probados antes en una caja de arena), <b>errores humanos</b> (el factor más importante) y vulnerabilidades del sistema. <b>Ingeniería social:</b> explota la curiosidad, cortesía, credulidad, codicia y timidez (llamados de un falso banco).</li>
+        <li><b>Principios:</b> soluciones simples ("menos es más": más código significa más superficie de ataque); open source (probado y barato, pero requiere saber) frente a propietario (con soporte); <b>el firewall es un concepto, no una solución mágica</b>; mantenerse actualizado; no existe la seguridad al 100 %. Para el profe, <b>el hacker es un delincuente</b>.</li>
+        <li><b>Sun Tzu:</b> "si conocés al enemigo y te conocés a vos mismo…". Fábula del ratón: ningún problema es "solo de otro".</li>
+        <li>ONTI: organismo argentino que da apoyo a organismos públicos ante incidentes.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================= PRACTICA ================= -->
+<section class="part" id="practica">
+  <h2>4 · Parte práctica</h2>
+  <p class="lead">Cada tipo de ejercicio que apareció en clase: primero el de clase resuelto paso a paso, después dos nuevos para que los intentes. Resolvé en papel antes de abrir la solución. Todas las cuentas están verificadas.</p>
+
+  <div class="tbl"><table>
+    <tr><th>Tipo</th><th>Apareció en</th><th>Prioridad</th></tr>
+    <tr><td>P1 · Reducir a mod n</td><td>18/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P2 · Potencia modular grande</td><td>04/09, 11/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P3 · Inverso modular</td><td>18/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P4 · Generar claves RSA</td><td>04/09, 11/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P5 · Cifrar y descifrar con RSA</td><td>04/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P6 · RSA con letras (base 26)</td><td>11/09, 25/09</td><td><span class="tag media">Media</span> (números grandes: calculadora modular)</td></tr>
+    <tr><td>P7 · Diffie-Hellman</td><td>11/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P8 · Transposición columnar (a mano + CrypTool)</td><td>28/08, 18/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P9 · César / Vigenère</td><td>28/08, 04/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P10 · Diagnóstico con estadísticas y entropía</td><td>28/08, 04/09, 25/09</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P11 · Políticas válidas / no válidas</td><td>25/09 (anunciado)</td><td><span class="tag alta">Alta</span></td></tr>
+    <tr><td>P12 · Explicar el KDC (desarrollo)</td><td>28/08, 11/09</td><td><span class="tag media">Media</span></td></tr>
+    <tr><td>P13 · One-time pad con XOR</td><td>18/09</td><td><span class="tag media">Media</span></td></tr>
+  </table></div>
+
+  <!-- P1 -->
+  <div class="kind" id="p1"><h3>P1 · Reducir a mod n</h3>
+    <div class="exercise"><h4>De clase: 42775 mod 977 <span class="src">18/09</span></h4>
+      <ol class="steps">
+        <li>42775 ÷ 977 = 43,78198…. El <b>43</b> son las vueltas completas y no importa.</li>
+        <li>Te quedás con la parte decimal: 0,78198… (cuantos más decimales, mejor).</li>
+        <li>0,78198… × 977 = 763,99… ≈ <b>764</b>. Es el "cachito" que sobra después de la última vuelta.</li>
+        <li>Control: 977 × 43 = 42011, y 42775 − 42011 = 764. ✔</li>
+      </ol>
+      <p>Por qué funciona: la parte decimal es la fracción de vuelta que sobró, y al multiplicarla por n la pasás a unidades.</p>
+    </div>
+    <div class="exercise"><h4>Nuevo 1.1: 58321 mod 97</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">58321 ÷ 97 = 601,2474… → 0,2474… × 97 ≈ <b>24</b>. Control: 97 × 601 = 58297, y 58321 − 58297 = 24.</div></details></div>
+    <div class="exercise"><h4>Nuevo 1.2: 100000 mod 37</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">100000 ÷ 37 = 2702,7027… → 0,7027… × 37 ≈ <b>26</b>. Control: 37 × 2702 = 99974, y 100000 − 99974 = 26.</div></details></div>
+  </div>
+
+  <!-- P2 -->
+  <div class="kind" id="p2"><h3>P2 · Potencia modular grande</h3>
+    <div class="exercise"><h4>De clase: 14¹² mod 9 <span class="src">25/09</span></h4>
+      <ol class="steps">
+        <li>14¹² ≈ 5,66·10¹³: aparece "×10", así que <b>no sirve</b>. Hay que partir el exponente.</li>
+        <li>12 = 3+3+3+3, entonces 14¹² = 14³ · 14³ · 14³ · 14³ (igual base: se suman los exponentes).</li>
+        <li>14³ = 2744, y 2744 mod 9: 2744/9 = 304,888… → 0,888… × 9 = <b>8</b>.</li>
+        <li>Queda 8·8·8·8 = 8⁴ = 4096, y 4096 mod 9: 455,111… → 0,111… × 9 = <b>1</b>.</li>
+      </ol>
+      <p><b>Atajo del compañero (válido con números chicos):</b> 14 ≡ 5 (mod 9), así que 14¹² ≡ 5¹² (mod 9). Reducís la base antes de elevar.</p>
+    </div>
+    <div class="exercise"><h4>De clase (corregido): 427⁷⁵ mod 977 <span class="src">25/09</span></h4>
+      <ol class="steps">
+        <li>75 = 3 × 25, entonces 427⁷⁵ = (427³)²⁵.</li>
+        <li>427³ = 77.854.483, y mod 977 da <b>284</b> (esto sí salió bien en clase).</li>
+        <li>Ahora hay que calcular <b>284²⁵</b> (no 284 × 25, que fue el error de la clase). 25 = 5 × 5, entonces 284²⁵ = (284⁵)⁵.</li>
+        <li>284² = 80656 → mod 977 = 542. Luego 542² = 293764 → 664. Luego 664 × 284 = 188576 → <b>15</b>, así que 284⁵ ≡ 15.</li>
+        <li>15⁵: 15² = 225; 225² = 50625 → 798; 798 × 15 = 11970 → <b>246</b>.</li>
+      </ol>
+      <p>Resultado: <b>246</b>, igual al de Planet Calc en clase. El truco es <b>reducir después de cada multiplicación</b> para que los números nunca crezcan.</p>
+    </div>
+    <div class="exercise"><h4>Nuevo 2.1: 7¹⁰ mod 13</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">10 = 5+5 → 7⁵ = 16807, y 16807 mod 13 = 11 (16807/13 = 1292,846… → 0,846… × 13 = 11). Queda 11 × 11 = 121, y 121 mod 13 = <b>4</b>.</div></details></div>
+    <div class="exercise"><h4>Nuevo 2.2: 23⁹ mod 31</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">9 = 3+3+3 → 23³ = 12167, y 12167 mod 31 = 15. Queda 15³ = 3375, y 3375 mod 31 = <b>27</b> (31 × 108 = 3348; 3375 − 3348 = 27).</div></details></div>
+  </div>
+
+  <!-- P3 -->
+  <div class="kind" id="p3"><h3>P3 · Inverso modular</h3>
+    <div class="exercise"><h4>De clase: 11⁻¹ mod 29 <span class="src">18/09</span></h4>
+      <ol class="steps">
+        <li>x = 11⁻¹ significa x = 1/11, es decir, <b>11·x ≡ 1 (mod 29)</b>.</li>
+        <li>Por la definición de congruencia: <b>11x − 1 = k·29</b>, o sea k = (11x − 1)/29.</li>
+        <li>Probás x = 1, 2, 3… hasta que k sea entero: x=1 → 10/29 ✗; x=2 → 21/29 ✗; … x=8 → 87/29 = <b>3</b> ✔.</li>
+        <li>Resultado: <b>x = 8</b>. También sirven 37, 66… (período 29). Control: 11 × 8 = 88 = 3·29 + 1. ✔</li>
+      </ol>
+      <p>Otro de clase: 21⁻¹ mod 5 → (21x − 1)/5 con x=1 da 20/5 = 4, entero, así que <b>x = 1</b>. <span class="src">25/09</span></p>
+    </div>
+    <div class="exercise"><h4>Nuevo 3.1: 7⁻¹ mod 26</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">k = (7x − 1)/26. Probás: x=15 → 104/26 = 4 ✔. <b>x = 15</b>. Control: 7 × 15 = 105 = 4·26 + 1.</div></details></div>
+    <div class="exercise"><h4>Nuevo 3.2: 17⁻¹ mod 43</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">k = (17x − 1)/43 … x=38 → 645/43 = 15 ✔. <b>x = 38</b>. <span class="comp">complemento</span> Truco para probar menos: despejá x en lugar de k, x = (43k + 1)/17, y probá k = 1, 2, 3…: con k=15 da 646/17 = 38. Cuando el módulo es grande conviene iterar sobre k.</div></details></div>
+  </div>
+
+  <!-- P4 -->
+  <div class="kind" id="p4"><h3>P4 · Generar claves RSA</h3>
+    <div class="exercise"><h4>De clase: p=7, q=17, e=5 <span class="src">04/09</span></h4>
+      <ol class="steps">
+        <li>n = 7 × 17 = <b>119</b></li>
+        <li>φ = 6 × 16 = <b>96</b></li>
+        <li>e = 5: es coprimo con 96, porque 5 es primo y no divide a 96.</li>
+        <li>d: d·5 ≡ 1 (mod 96), así que k = (5d − 1)/96. Probando por k: d = (96k + 1)/5; con k=4 da 385/5 = <b>77</b>.</li>
+        <li>Pública {5, 119}, privada {77, 119}.</li>
+      </ol>
+    </div>
+    <div class="exercise"><h4>Nuevo 4.1: p=5, q=11, e=3</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">n = 55, φ = 4·10 = 40. mcd(3, 40) = 1 ✔. d = (40k + 1)/3: con k=2 da 81/3 = <b>27</b>. Pública {3, 55}, privada {27, 55}. Control: 3·27 = 81 = 2·40 + 1.</div></details></div>
+    <div class="exercise"><h4>Nuevo 4.2: p=11, q=13, e=7</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">n = 143, φ = 10·12 = 120. mcd(7, 120) = 1 ✔. d = (120k + 1)/7: con k=6 da 721/7 = <b>103</b>. Pública {7, 143}, privada {103, 143}.</div></details></div>
+  </div>
+
+  <!-- P5 -->
+  <div class="kind" id="p5"><h3>P5 · Cifrar y descifrar con RSA</h3>
+    <div class="exercise"><h4>De clase: M = 19 con {5, 119} y {77, 119} <span class="src">04/09</span></h4>
+      <ol class="steps">
+        <li><b>Cifrar:</b> 19⁵ = 2.476.099, que es mayor que 119, así que hay que reducir: 2476099/119 = 20807,554… → 0,554… × 119 ≈ <b>66</b>.</li>
+        <li><b>Descifrar:</b> 66⁷⁷ mod 119. Por partes (reduciendo siempre):<br>
+          66² = 4356 → 72 · 66⁴ = 72² = 5184 → 67 · 66⁶ = 67·72 = 4824 → 64 · 66⁷ = 64·66 = 4224 → <b>59</b><br>
+          77 = 7·11 → hace falta 59¹¹: 59² = 3481 → 30 · 59⁴ = 900 → 67 · 59⁸ = 4489 → 86 · 59¹¹ = 59⁸·59²·59 = 86·30·59 → 81·59 = 4779 → <b>19</b> ✔</li>
+      </ol>
+      <p>En clase el profe partió 77 = 10+10+…+7 y después cada 66¹⁰ en 66⁵·66⁵. Cualquier partición sirve si reducís en cada paso.</p>
+    </div>
+    <div class="exercise"><h4>Nuevo 5.1: con {3, 55} cifrá M = 8 y después descifrá</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">C = 8³ = 512, y 512 mod 55 = <b>17</b>. Descifrar: 17²⁷ mod 55, con 27 = 3·9. 17³ = 4913 → 18; 18³ = 5832 → 2; 2³ = <b>8</b> ✔.</div></details></div>
+    <div class="exercise"><h4>Nuevo 5.2: con {7, 143} cifrá M = 5</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">5⁷ = 78125, y 78125 mod 143 = <b>47</b> (78125/143 = 546,328… → 0,328… × 143 ≈ 47). Para descifrar: 47¹⁰³ mod 143 = 5. Es largo a mano, así que verificalo con la calculadora modular de abajo.</div></details></div>
+  </div>
+
+  <!-- P6 -->
+  <div class="kind" id="p6"><h3>P6 · RSA con letras (base 26)</h3>
+    <div class="exercise"><h4>De clase: "YES" con la pública de Benito {39423, 46927} <span class="src">11/09</span></h4>
+      <ol class="steps">
+        <li>Tamaño de bloque: 26³ = 17576 &lt; 46927 &lt; 26⁴, así que se usan bloques de <b>3 letras</b>.</li>
+        <li>YES = 24·26² + 4·26 + 18 = <b>16346</b> (A=0).</li>
+        <li>C = 16346³⁹⁴²³ mod 46927 = <b>21166</b> (con calculadora modular).</li>
+        <li>A letras: 21166 = 1·26³ + 5·26² + 8·26 + 2 → <b>B F I C</b>. Se va dividiendo por la potencia más alta que entra y el resto pasa a la siguiente.</li>
+        <li>Benito: BFIC → 21166, y 21166²⁶⁷⁶⁷ mod 46927 = 16346 → YES.</li>
+      </ol>
+      <p>El profe dijo que en el parcial no pide esto con números tan grandes, pero sí "que cifres tu apellido" o una palabra corta. <span class="src">11/09</span> <span class="src">25/09</span></p>
+    </div>
+    <div class="exercise"><h4>Nuevo 6.1: claves p=31, q=37, e=7. Generá d y cifrá "SI"</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">n = 1147, φ = 30·36 = 1080, d = 7⁻¹ mod 1080 = <b>463</b>. Bloque: 26² = 676 &lt; 1147 &lt; 26³, así que entran 2 letras. SI = 18·26 + 8 = 476. C = 476⁷ mod 1147 = <b>1129</b> = 1·26² + 17·26 + 11 → <b>BRL</b> (sale una letra más porque C puede ser mayor que 676).</div></details></div>
+    <div class="exercise"><h4>Nuevo 6.2: con las mismas claves te llega "BJC". ¿Qué dice?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">BJC = 1·676 + 9·26 + 2 = 912. M = 912⁴⁶³ mod 1147 = 352 = 13·26 + 14 → <b>NO</b>.</div></details></div>
+  </div>
+
+  <!-- P7 -->
+  <div class="kind" id="p7"><h3>P7 · Diffie-Hellman</h3>
+    <div class="exercise"><h4>De clase: G=53, α=2, a=5, b=9 <span class="src">25/09</span></h4>
+      <ol class="steps">
+        <li>Alicia: 2⁵ = 32. Es menor que 53, así que no se reduce y envía <b>32</b>.</li>
+        <li>Benito: 2⁹ = 512, y 512 mod 53 = <b>35</b>. Envía 35.</li>
+        <li>Alicia: 35⁵ mod 53 = <b>41</b>. Benito: 32⁹ mod 53 = <b>41</b>. ✔ La clave es 41.</li>
+      </ol>
+      <p>El profe primero escribió 51 y después lo cambió; la cuenta se hizo con módulo 53. También de clase: G=53, α=2, a=29, b=19 → 45 y 12 → clave <b>21</b>, y G=11, α=2, a=4, b=5 → 5 y 10 → clave <b>1</b>. <span class="src">11/09</span></p>
+    </div>
+    <div class="exercise"><h4>Nuevo 7.1: G=23, α=5, a=6, b=15</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">A = 5⁶ mod 23 = 15625 mod 23 = <b>8</b>. B = 5¹⁵ mod 23 = <b>19</b> (15 = 5+5+5: 5⁵ = 3125 → 20; 20³ = 8000 → 19). Alicia: 19⁶ mod 23 = <b>2</b>. Benito: 8¹⁵ mod 23 = <b>2</b>. Clave <b>2</b>.</div></details></div>
+    <div class="exercise"><h4>Nuevo 7.2 (del PDF de Complementos): G=13, α=4, a=5, b=2. Y después: si un espía ve que se intercambian 3 y 10, ¿puede sacar la clave?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">A = 4⁵ mod 13 = 1024 mod 13 = <b>10</b>. B = 4² = 16 → <b>3</b>. Clave: 3⁵ mod 13 = 243 mod 13 = <b>9</b> (y 10² = 100 → 9 ✔).<br>Romperlo: con números chicos, el espía prueba qué exponente x cumple 4<sup>x</sup> ≡ 3 (mod 13) y encuentra x = 2. Después calcula 10² mod 13 = 9. Con primos de más de 200 cifras eso es inviable (logaritmo discreto). <span class="src">11/09</span> ("los códigos no se pueden romper, pero a veces sí, cuando son muy fáciles")</div></details></div>
+  </div>
+
+  <!-- P8 -->
+  <div class="kind" id="p8"><h3>P8 · Transposición columnar (a mano y en CrypTool)</h3>
+    <div class="exercise"><h4>De clase: descifrar PLCUADNDOOEMRYZAOSIIEAEA con clave TOSHIVA <span class="src">18/09</span></h4>
+      <ol class="steps">
+        <li>Numerás la clave por orden alfabético: T O S H I V A → A=1, H=2, I=3, O=4, S=5, T=6, V=7.</li>
+        <li>24 letras ÷ 7 = 3, resto 3. Todas las columnas tienen 3 letras y <b>las 3 primeras de la palabra clave</b> (T, O, S) tienen 4.</li>
+        <li>Cortás el cifrado en el orden 1…7 con esos largos: A(3) PLC · H(3) UAD · I(3) NDO · O(4) OEMR · S(4) YZAO · T(4) SIIE · V(3) AEA.</li>
+        <li>Ponés cada tira debajo de su letra y leés por filas: <b>SOY UNA PIEZA DE LIMADO ACERO</b>. Que se lea es la prueba de que está bien.</li>
+      </ol>
+      <p>También de clase: OAUIRYJSSAHMEAIARUGAEERDNOTEDNDQDU con VAMPIRO → "NO HAY NADA MEJOR QUE ESTUDIAR SEGURIDAD". <span class="src">28/08</span></p>
+    </div>
+    <div class="exercise"><h4>Nuevo 8.1: descifrá TMLNRAAAAECSMCAOAE con clave GATO</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">Orden: A=1, G=2, O=3, T=4. 18 ÷ 4 = 4, resto 2, así que G y A (las 2 primeras de la palabra) tienen 5 letras. A: TMLNR · G: AAAAE · O: CSMC · T: AOAE. Colocadas bajo G A T O y leídas por filas: <b>ATACAMOSALAMANECER</b> ("atacamos al amanecer").</div></details></div>
+    <div class="exercise"><h4>Nuevo 8.2: cifrá "EL PARCIAL ES EL VIERNES" con clave SEGURO (sin espacios)</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">Orden: E=1, G=2, O=3, R=4, S=5, U=6. Filas bajo S E G U R O: ELPARC / IALESE / LVIERN / ES. Columnas en orden: E: LAVS · G: PLI · O: CEN · R: RSR · S: EILE · U: AEE → <b>LAVSPLICENRSREILEAEE</b>. Después repetilo en CrypTool y sacá la captura, como en el parcial.</div></details></div>
+  </div>
+
+  <!-- P9 -->
+  <div class="kind" id="p9"><h3>P9 · César y Vigenère</h3>
+    <div class="exercise"><h4>De clase: VENI VIDI VICI con César clave D <span class="src">28/08</span></h4>
+      <p>V = 21, +3 = 24 = Y. Letra por letra: <b>YHQL YLGL YLFL</b>. Para descifrar restás 3 (mod 26). PERRO → SHUUR. En CrypTool: Cifrar/Descifrar → Simétrico clásico → César con clave D.</p>
+    </div>
+    <div class="exercise"><h4>Nuevo 9.1: descifrá WKH EHVW GHIHQVH (César, idioma inglés)</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">La palabra de tres letras que más se repite en inglés es THE. W→T es un corrimiento de 3, así que la clave es D. Resultado: <b>THE BEST DEFENSE</b>. Es un ejemplo de información lateral.</div></details></div>
+    <div class="exercise"><h4>Nuevo 9.2: cifrá HOLAMUNDO con Vigenère, clave LUZ (suma, A=0)</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">La clave se repite: L U Z L U Z L U Z (11, 20, 25…). H+L = 7+11 = 18 = S; O+U = 14+20 = 34 mod 26 = 8 = I; L+Z = 11+25 = 36 → 10 = K; … Resultado: <b>SIKLGTYXN</b>. Fijate que las dos O dan I y N: la misma letra sale distinta, y por eso se aplanan las frecuencias.</div></details></div>
+  </div>
+
+  <!-- P10 -->
+  <div class="kind" id="p10"><h3>P10 · Diagnóstico con estadísticas y entropía</h3>
+    <div class="exercise"><h4>De clase: ¿cómo sabés si un cifrado es de sustitución o de transposición? <span class="src">28/08</span></h4>
+      <p>Frecuencia de letras en CrypTool: si la más frecuente sigue siendo E (o A), es <b>transposición</b>. Si aparece H, G u otra letra rara, es <b>sustitución</b>. Después miraste entropía y autocorrelación: si la entropía es parecida a la del idioma es una sustitución simple, y si es más alta y hay períodos en la autocorrelación, probablemente sea Vigenère.</p>
+    </div>
+    <div class="exercise"><h4>Nuevo 10.1: RPRPCCAOAOIFOTSINIDRNSO tiene 4 O, 3 R, 3 I y 2 A. ¿Qué tipo de cifrado es?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">Las letras más frecuentes son O, R e I, seguidas de A, S y N: todas comunes en español, sin letras raras. Con un texto tan corto es solo un indicio, pero sugiere <b>transposición</b>. (Es "CIFRADO POR TRANSPOSICION" con clave LUNA: lo vas a usar en el simulacro.)</div></details></div>
+    <div class="exercise"><h4>Nuevo 10.2: ciframos un texto con César y otro igual con Vigenère. ¿Cómo queda la entropía de cada uno comparada con la del texto plano?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">César: <b>igual</b> (solo cambia el nombre de las letras). Vigenère: <b>mayor</b> (aplana las frecuencias y se acerca al máximo de ≈4,7). <span class="comp">complemento</span> Comprobalo en CrypTool antes del parcial.</div></details></div>
+  </div>
+
+  <!-- P11 -->
+  <div class="kind" id="p11"><h3>P11 · Políticas de seguridad: ¿válida o no?</h3>
+    <p>El profe lo anunció como ejercicio posible pero no hizo ninguno en clase <span class="src">25/09</span>. Los enunciados son míos, con los criterios de las clases del 14/08 y el 21/08.</p>
+    <div class="exercise"><h4>Nuevo 11.1: marcá válida o no válida y justificá</h4>
+      <ol type="a">
+        <li>"Es recomendable que los usuarios no compartan sus contraseñas."</li>
+        <li>"Se instalará un firewall marca X modelo 5506 en el rack 3 del segundo piso."</li>
+        <li>"Toda contraseña debe tener al menos 10 caracteres y cambiarse cada 90 días. Responsable: CISO. Revisión 3, aprobada por Dirección."</li>
+        <li>"En esta empresa todos somos responsables de la seguridad."</li>
+        <li>"Solo el personal de RR. HH. accederá a los legajos del personal."</li>
+      </ol>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">
+        a) <b>No válida:</b> es ambigua ("es recomendable"). Tiene que ser taxativa: "Los usuarios no deben compartir…".<br>
+        b) <b>No es una política:</b> es un detalle de implementación (procedimiento). La política dice qué proteger, no qué modelo instalar.<br>
+        c) <b>Válida:</b> es clara y taxativa, tiene responsable, revisión y aprobación.<br>
+        d) <b>No válida:</b> sin un responsable concreto, "nadie es responsable".<br>
+        e) <b>Válida:</b> aplica la necesidad de saber, es clara y consistente.</div></details></div>
+    <div class="exercise"><h4>Nuevo 11.2: "Los gerentes pueden saltear el control de acceso cuando estén apurados." ¿Qué característica viola?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">La <b>consistencia</b>: todos tienen que reaccionar igual. También marca mal los límites y deja un hueco explotable. Además es ambigua ("apurados").</div></details></div>
+  </div>
+
+  <!-- P12 -->
+  <div class="kind" id="p12"><h3>P12 · Explicar el KDC (desarrollo)</h3>
+    <div class="exercise"><h4>De clase <span class="src">28/08</span>: tenés el esquema completo en T10. Practicá escribirlo en 6 renglones.</h4></div>
+    <div class="exercise"><h4>Nuevo 12.1: ¿qué pasa si un atacante captura el mensaje que Alicia reenvía a Benito?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">No puede leerlo, porque está cifrado con Kb, que solo comparten el KDC y Benito. Ve un bloque ilegible y no obtiene Ks.</div></details></div>
+    <div class="exercise"><h4>Nuevo 12.2: nombrá la principal debilidad del KDC y cómo la resuelve la criptografía moderna</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">Hay que confiar en un tercero que conoce todas las claves: si lo hackean, caen todas. La clave pública (esquema híbrido) o Diffie-Hellman evitan depender de él. <span class="src">28/08</span> <span class="src">11/09</span></div></details></div>
+  </div>
+
+  <!-- P13 -->
+  <div class="kind" id="p13"><h3>P13 · One-time pad con XOR</h3>
+    <div class="exercise"><h4>De clase <span class="src">18/09</span>: texto XOR clave aleatoria del mismo largo. Cualquier texto plano puede salir de ese cifrado con alguna clave, así que es indescifrable.</h4></div>
+    <div class="exercise"><h4>Nuevo 13.1: P = 10110010, K = 01101100. Calculá C y verificá que C ⊕ K = P</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">C = <b>11011110</b>. C ⊕ K = 10110010 = P ✔.</div></details></div>
+    <div class="exercise"><h4>Nuevo 13.2 (de las diapositivas): un Vigenère de 27 caracteres con clave tan larga como el mensaje. ¿Por qué se puede encontrar una clave que dé "MR MUSTARD…" y otra que dé "MISS SCARLET…" a partir del mismo cifrado?</h4>
+      <details class="sol"><summary>Ver resolución</summary><div class="inner">Porque con una clave del largo del mensaje, cada letra cifrada puede venir de cualquier letra plana. Para cualquier texto del mismo largo existe una clave. Conclusión: sin la clave, es imposible saber cuál es el verdadero. Es la idea del one-time pad.</div></details></div>
+  </div>
+</section>
+
+<!-- ================= SIMULACRO ================= -->
+<section class="part" id="simulacro">
+  <h2>5 · Simulacro de parcial</h2>
+  <p class="lead">Mismo formato del 25/09. La proporción la deduje de las clases (no la dijo el profe): el multiple choice pesa poco y la mayor parte son ejercicios, porque dijo que "el examen va a ser principalmente problemas y simulación con CrypTool". <span class="src">18/09</span> Hacelo con reloj y en papel, y usá la calculadora recién para corregir.</p>
+
+  <h3>Parte 1 · Multiple choice (16 preguntas, 25 s cada una, sin volver atrás) · 30 %</h3>
+  <div class="quiz" id="quiz">
+    <div id="qStart">
+      <p style="margin-top:0">Cuando empieces, cada pregunta tiene 25 segundos. Si no contestás, cuenta como mal y pasa sola a la siguiente.</p>
+      <button class="btn" id="qGo" type="button">Empezar la parte 1</button>
+    </div>
+    <div id="qRun" hidden>
+      <div class="qmeta"><span id="qNum"></span><span id="qTime"></span></div>
+      <div class="timer"><i id="qBar"></i></div>
+      <div id="qText" style="font-weight:600"></div>
+      <div class="opts" id="qOpts"></div>
+    </div>
+    <div id="qEnd" hidden>
+      <p id="qScore" style="font-family:var(--cond);font-size:22px;font-weight:700;margin:0 0 6px"></p>
+      <div id="qReview"></div>
+      <button class="btn ghost" id="qAgain" type="button" style="margin-top:12px">Repetir (preguntas en otro orden)</button>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">Parte 2 · Ejercicios escritos (en papel → PDF) · 70 %</h3>
+  <div class="exercise"><h4>E1 (15 pts) · Diffie-Hellman</h4><p>Alicia y Benito acuerdan G = 17 y α = 3. Alicia elige a = 4 y Benito b = 6. Calculá lo que envía cada uno y la clave compartida. Explicá por qué a los dos les da lo mismo y qué datos conoce un espía.</p></div>
+  <div class="exercise"><h4>E2 (25 pts) · RSA</h4><p>Con p = 3, q = 11 y e = 7: a) calculá n, φ y d; b) escribí la clave pública y la privada; c) cifrá M = 4; d) descifrá el resultado y comprobá que vuelve a 4.</p></div>
+  <div class="exercise"><h4>E3 (10 pts) · Inverso modular</h4><p>Calculá 9⁻¹ mod 26 mostrando el procedimiento.</p></div>
+  <div class="exercise"><h4>E4 (10 pts) · Potencia modular</h4><p>Calculá 12¹⁰ mod 7 partiendo el exponente. Se califica el método.</p></div>
+  <div class="exercise"><h4>E5 (25 pts) · Criptograma + CrypTool</h4><p>Descifrá RPRPCCAOAOIFOTSINIDRNSO sabiendo que se usó transposición columnar con clave LUNA. Después: a) hacé lo mismo en CrypTool y mandá la captura; b) calculá la entropía del cifrado y del texto plano en CrypTool y explicá el resultado.</p></div>
+  <div class="exercise"><h4>E6 (15 pts) · Políticas</h4><p>Indicá si cada una es una política válida y corregí las que no lo sean: (1) "Es conveniente bloquear la PC al levantarse." (2) "Toda la información de clientes debe cifrarse al almacenarse. Responsable: CISO. Rev. 1." (3) "Se usará el antivirus marca Z versión 12."</p></div>
+
+  <h3 style="margin-top:28px">Parte 3 · Oral "ping-pong" (opcional)</h3>
+  <p>Contestá en voz alta en menos de 10 segundos cada una y después abrí la respuesta.</p>
+  <div class="exercise">
+    <div class="qa"><b>1. ¿Qué es más seguro, clave simétrica o asimétrica?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Ninguna por sí misma: depende del algoritmo y del largo de clave. La simétrica es más rápida.</div></details>
+    <div class="qa"><b>2. ¿Qué característica tiene que tener una buena política?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Clara, sin ambigüedades, de alto nivel, consistente, con responsable y actualizada.</div></details>
+    <div class="qa"><b>3. ¿Cuántas claves tiene un sistema asimétrico por usuario?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Dos: una pública y una privada.</div></details>
+    <div class="qa"><b>4. Si cifro con la privada, ¿con qué se descifra?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Con la pública del mismo usuario.</div></details>
+    <div class="qa"><b>5. ¿Puede haber dos textos con el mismo hash?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Sí, infinitos: los textos son infinitos y los resúmenes finitos.</div></details>
+    <div class="qa"><b>6. ¿Qué es la integridad?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Que el mensaje no fue modificado, o que si lo modifican se detecta.</div></details>
+    <div class="qa"><b>7. ¿Qué es la entropía en criptografía?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">El grado de imprevisibilidad o aleatoriedad del texto.</div></details>
+    <div class="qa"><b>8. ¿Para qué sirve Diffie-Hellman?</b></div>
+    <details class="sol"><summary>Respuesta</summary><div class="inner">Para acordar una clave simétrica sin enviarla.</div></details>
+  </div>
+
+  <h3 style="margin-top:28px">Corrección detallada de la parte 2</h3>
+  <details class="sol"><summary>Abrir la corrección (hacelo después de terminar)</summary><div class="inner">
+    <h4>E1 · Diffie-Hellman</h4>
+    <p>Alicia: 3⁴ = 81, y 81 mod 17 = <b>13</b> (81 − 4·17 = 13). Benito: 3⁶ = 729, y 729 mod 17 = <b>15</b> (17·42 = 714). Alicia recibe 15 y calcula 15⁴ mod 17: 15² = 225 → 4, 4² = 16 → <b>16</b>. Benito recibe 13 y calcula 13⁶ mod 17: 13² = 169 → 16, 16³ = 4096 → <b>16</b>. <b>Clave 16.</b> Es la misma porque (3⁶)⁴ = (3⁴)⁶ = 3²⁴. El espía conoce 17, 3, 13 y 15, pero no 4 ni 6.</p>
+    <p><i>Qué se evalúa:</i> los dos lados calculados, la reducción módulo 17 en cada paso y la explicación de por qué coinciden. Un error de cuenta con el método bien resta poco.</p>
+    <h4>E2 · RSA</h4>
+    <p>n = 33; φ = 2·10 = 20; mcd(7, 20) = 1; d = (20k + 1)/7 → con k = 1 da 21/7 = <b>3</b>. Pública {7, 33}, privada {3, 33}. Cifrar: 4⁷ = 16384, y 16384 mod 33 = <b>16</b> (33·496 = 16368). Descifrar: 16³ = 4096, y 4096 mod 33 = <b>4</b> ✔ (33·124 = 4092).</p>
+    <p><i>Errores típicos:</i> usar n en lugar de φ para calcular d, o no reducir módulo n.</p>
+    <h4>E3 · Inverso</h4>
+    <p>9x − 1 = 26k → x = (26k + 1)/9: con k = 1 da 27/9 = <b>3</b>. Control: 9·3 = 27 = 26 + 1 ✔.</p>
+    <h4>E4 · Potencia</h4>
+    <p>10 = 5+5 → 12⁵ = 248832, y 248832 mod 7 = 3 (248832/7 = 35547,43 → 0,43 × 7 = 3). Queda 3·3 = 9, y 9 mod 7 = <b>2</b>. Atajo: 12 ≡ 5 (mod 7), y 5¹⁰ mod 7 = 2.</p>
+    <h4>E5 · Criptograma</h4>
+    <p>LUNA → A=1, L=2, N=3, U=4. 23 ÷ 4 = 5, resto 3, así que L, U y N (las 3 primeras de la palabra) tienen 6 letras y A tiene 5. Cortes: A: RPRPC · L: CAOAOI · N: FOTSIN · U: IDRNSO. Bajo L U N A, por filas: <b>CIFRADO POR TRANSPOSICION</b>.</p>
+    <p>Entropía: <b>es la misma</b> en el plano y en el cifrado, porque la transposición no cambia las letras, solo su orden. Si CrypTool mostrara valores distintos, revisá que hayas copiado el mismo texto sin espacios.</p>
+    <h4>E6 · Políticas</h4>
+    <p>(1) No válida por ambigua; corregida: "El usuario debe bloquear la PC al levantarse". (2) Válida. (3) No es una política sino un detalle de implementación (procedimiento o estándar); corregida: "Todo equipo debe tener protección antimalware actualizada".</p>
+  </div></details>
+</section>
+
+<!-- ================= PLAN ================= -->
+<section class="part" id="plan">
+  <h2>6 · Plan de estudio (27/09 → 02/10)</h2>
+  <p class="lead">Cinco días, con la práctica primero porque es lo que más pesa. Las casillas se guardan en este navegador.</p>
+  <div id="planList"></div>
+  <div class="note">Tip del profe: no copies y pegues de la IA; usala para entender el porqué. En el parcial se califica el método. <span class="src">04/09</span> <span class="src">25/09</span></div>
+</section>
+
+<!-- ================= CALC ================= -->
+<section class="part" id="calc">
+  <h2>Calculadora modular</h2>
+  <p class="lead">Para controlar tus cuentas, como el profe usa Planet Calc. En el parcial tenés que mostrar el procedimiento a mano.</p>
+  <div class="box calc">
+    <div class="row">
+      <select id="cOp" aria-label="Operación">
+        <option value="pow">a^b mod n</option>
+        <option value="mod">a mod n</option>
+        <option value="inv">a⁻¹ mod n</option>
+      </select>
+      <label>a <input id="cA" inputmode="numeric" value="427"></label>
+      <label id="cBwrap">b <input id="cB" inputmode="numeric" value="75"></label>
+      <label>n <input id="cN" inputmode="numeric" value="977"></label>
+    </div>
+    <div class="out" id="cOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<footer>Guía armada a partir de las grabaciones de Seguridad Informática (14/08 a 25/09) y del material de la cátedra. Lo que no dijo el profe está marcado como <span class="comp">complemento</span>. Todas las cuentas están verificadas.</footer>
+</div>
+
+<script>
+(function(){
+  /* ---------- QUIZ ---------- */
+  var QS=[
+    {q:"Un competidor satura tu servidor de ventas online con pedidos falsos. ¿Qué propiedad ataca?",o:["Confidencialidad","Integridad","Disponibilidad","No repudio"],a:2,e:"Impedir que el servicio esté disponible es un ataque a la disponibilidad (DoS). Es el ejemplo de la clase del 14/08."},
+    {q:"Para que solo Alicia pueda leer un mensaje, Benito lo cifra con:",o:["Su propia clave privada","La clave pública de Alicia","La clave privada de Alicia","Su propia clave pública"],a:1,e:"Lo cifrado con la pública de Alicia solo se descifra con la privada de Alicia."},
+    {q:"Si Benito cifra un mensaje con su propia clave privada, se garantiza:",o:["Confidencialidad","Autenticación del origen","Disponibilidad","Nada"],a:1,e:"Cualquiera lo lee con la pública de Benito (no hay confidencialidad), pero solo Benito pudo cifrarlo: autenticación y no repudio."},
+    {q:"En RSA con p = 7 y q = 17, φ vale:",o:["119","96","112","24"],a:1,e:"φ = (p−1)(q−1) = 6·16 = 96. El 119 es n."},
+    {q:"¿Es la criptografía asimétrica más segura que la simétrica?",o:["Sí, siempre","No, depende del algoritmo y del largo de la clave","Sí, porque tiene dos claves","No, la simétrica siempre es más segura"],a:1,e:"Lo que importa es el algoritmo. La ventaja de la simétrica es la velocidad (11/09)."},
+    {q:"En un cifrado, la letra más frecuente sigue siendo la E. Lo más probable es que sea:",o:["César","Monoalfabético","Transposición","Vigenère"],a:2,e:"La transposición no cambia las letras, solo el orden, así que se conserva la frecuencia del idioma."},
+    {q:"Una función hash:",o:["Es reversible si tenés la clave","Da una salida de largo fijo y no se puede invertir","Cifra con clave pública","Da una salida del mismo largo que el mensaje"],a:1,e:"Entrada de cualquier tamaño, salida de largo fijo, unidireccional."},
+    {q:"Diffie-Hellman sirve para:",o:["Firmar documentos","Acordar una clave simétrica sin enviarla","Generar el par público/privado de RSA","Calcular hashes"],a:1,e:"Se intercambian α^a y α^b; la clave α^ab nunca viaja."},
+    {q:"¿Cuál es incondicionalmente seguro?",o:["DES","RSA de 4096 bits","One-time pad con clave aleatoria del largo del mensaje, usada una vez","César con clave secreta"],a:2,e:"El one-time pad no se puede romper ni con recursos infinitos. Los demás son, a lo sumo, computacionalmente seguros."},
+    {q:"Una buena política de seguridad:",o:["Indica marca y modelo del firewall","Usa expresiones como 'es conveniente'","Es clara, sin ambigüedades, de alto nivel y con un responsable","Dice que todos son responsables"],a:2,e:"Alto nivel (qué, no cómo), taxativa, consistente y con responsable."},
+    {q:"El riesgo se estima como:",o:["Amenaza + vulnerabilidad","Probabilidad × impacto","Costo del activo","Cantidad de ataques por año"],a:1,e:"Riesgo = probabilidad × impacto (21/08)."},
+    {q:"Contratar un seguro contra ciberataques es una respuesta al riesgo de tipo:",o:["Mitigación","Aceptación","Transferencia","Terminación"],a:2,e:"Se pasa el riesgo a un tercero."},
+    {q:"El principio de 'necesidad de saber' indica:",o:["Todos deben conocer las contraseñas del área","Dar acceso solo a quien lo necesita para su trabajo","Informar todo incidente a la prensa","Educar en lugar de entrenar"],a:1,e:"Es uno de los principios que el profe pidió grabar 'a fuego' (14/08)."},
+    {q:"La auditoría, a diferencia del hacking ético:",o:["Busca vulnerabilidades libremente","Verifica que existan y se cumplan los controles","No necesita autorización","Usa exploits"],a:1,e:"La auditoría es un checklist de controles; el pentest busca vulnerabilidades."},
+    {q:"¿Por qué es difícil saber de dónde viene un ciberataque?",o:["Porque los ataques no dejan rastro","Porque se usan IP falsas y botnets en otros países","Porque solo lo sabe el ISP","Porque siempre viene de adentro"],a:1,e:"IP falsas y máquinas zombie repartidas entre países (21/08, Delitos informáticos)."},
+    {q:"En aritmética modular, 26 mod 12 es:",o:["2","14","12","0"],a:0,e:"26 = 2·12 + 2."}
+  ];
+  var T=25, order=[], i=0, ans=[], timer=null, left=T;
+  var $=function(id){return document.getElementById(id)};
+  function shuffle(a){for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=a[k];a[k]=a[j];a[j]=t}return a}
+  function start(){order=shuffle(QS.map(function(_,k){return k}));i=0;ans=[];$("qStart").hidden=true;$("qEnd").hidden=true;$("qRun").hidden=false;show()}
+  function show(){
+    var q=QS[order[i]];left=T;
+    $("qNum").textContent="Pregunta "+(i+1)+" de "+QS.length;
+    $("qText").textContent=q.q;
+    var box=$("qOpts");box.innerHTML="";
+    q.o.forEach(function(t,k){var b=document.createElement("button");b.type="button";b.textContent=String.fromCharCode(65+k)+") "+t;b.onclick=function(){pick(k)};box.appendChild(b)});
+    tick();clearInterval(timer);timer=setInterval(function(){left--;tick();if(left<=0)pick(-1)},1000);
+  }
+  function tick(){$("qTime").textContent=left+" s";$("qBar").style.width=(left/T*100)+"%"}
+  function pick(k){clearInterval(timer);ans.push(k);i++;if(i<QS.length)show();else end()}
+  function end(){
+    $("qRun").hidden=true;$("qEnd").hidden=false;
+    var ok=0,html="";
+    order.forEach(function(qi,n){var q=QS[qi],r=ans[n],good=r===q.a;if(good)ok++;
+      html+='<div class="res-item"><div><b>'+(n+1)+'.</b> '+q.q+'</div><div class="'+(good?'ok':'bad')+'">'+(good?'Bien':'Mal')+' · '+(r<0?'Sin responder':'Elegiste: '+q.o[r])+'</div>'+(good?'':'<div>Correcta: <b>'+q.o[q.a]+'</b></div>')+'<div style="color:var(--muted)">'+q.e+'</div></div>'});
+    $("qScore").textContent=ok+" / "+QS.length+" correctas ("+Math.round(ok/QS.length*100)+" %)";
+    $("qReview").innerHTML=html;
+  }
+  $("qGo").onclick=start;$("qAgain").onclick=start;
+
+  /* ---------- PLAN ---------- */
+  var PLAN=[
+    {d:"Dom 27/09",h:"1 h, esta noche",t:["Leer el formato del parcial y el mapa de prioridades","Teoría T1 (aritmética modular)","Práctica P1 completa","Verificar que CrypTool 1.4 abra bien"]},
+    {d:"Lun 28/09",h:"3 h",t:["Práctica P2 (potencia modular), incluido el 427⁷⁵ corregido","Práctica P3 (inverso modular)","Teoría T3 (RSA)","Práctica P4 y P5 (claves RSA, cifrar y descifrar)"]},
+    {d:"Mar 29/09",h:"3 h",t:["Teoría T4 + Práctica P7 (Diffie-Hellman): los 3 de clase y los 2 nuevos","Teoría T2 y T5 (qué da cada clave, hash, firma, híbrido)","Rehacer los V/F de clave pública de las preguntas de repaso","Práctica P6 (RSA con letras): hacer al menos 6.1"]},
+    {d:"Mié 30/09",h:"3 h",t:["Teoría T6 y T7 (clásicos, entropía, CrypTool)","Práctica P8 (transposición) a mano Y en CrypTool, con captura pasada a PDF","Práctica P9 y P10 (César, Vigenère, diagnóstico)","Probar la entropía de un texto, su César y su Vigenère en CrypTool"]},
+    {d:"Jue 01/10",h:"3 h",t:["Teoría T8 y T9 (políticas, CIA) + Práctica P11","Teoría T10 a T15 (media) + P12 y P13","Leer T16 (Delitos informáticos) para el multiple choice","SIMULACRO completo con reloj; corregir y anotar errores"]},
+    {d:"Vie 02/10",h:"mañana, 1,5 h · parcial 19 h",t:["Rehacer 1 Diffie-Hellman, 1 RSA completo y 1 transposición sin mirar","Repetir el multiple choice del simulacro","Preparar: calculadora física, CrypTool abierto, cámara y micrófono, app para escanear a PDF","Conectarse 10 minutos antes"]}
+  ];
+  var saved={};try{saved=JSON.parse(localStorage.getItem("plan-sec-p1")||"{}")}catch(e){}
+  var pl=$("planList"),h="";
+  PLAN.forEach(function(day,di){h+='<div class="day"><h3>'+day.d+' <small>'+day.h+'</small></h3>';
+    day.t.forEach(function(t,ti){var id="c"+di+"_"+ti;h+='<div class="check"><input type="checkbox" id="'+id+'"'+(saved[id]?' checked':'')+'><label for="'+id+'">'+t+'</label></div>'});h+='</div>'});
+  pl.innerHTML=h;
+  pl.addEventListener("change",function(ev){if(ev.target&&ev.target.id){saved[ev.target.id]=ev.target.checked;try{localStorage.setItem("plan-sec-p1",JSON.stringify(saved))}catch(e){}}});
+
+  /* ---------- CALC ---------- */
+  function big(v){v=String(v).trim().replace(/[.\s]/g,"");if(!/^-?\d+$/.test(v))throw 0;return BigInt(v)}
+  function modp(b,e,m){var r=1n;b=((b%m)+m)%m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n}return r}
+  function inv(a,m){var t=0n,nt=1n,r=m,nr=((a%m)+m)%m;while(nr!==0n){var q=r/nr;var x=t-q*nt;t=nt;nt=x;x=r-q*nr;r=nr;nr=x}if(r!==1n)return null;return (t%m+m)%m}
+  function calc(){var op=$("cOp").value;$("cBwrap").hidden=op!=="pow";var out=$("cOut");
+    try{var a=big($("cA").value),n=big($("cN").value);if(n<=0n){out.textContent="n tiene que ser mayor que 0";return}
+      if(op==="mod")out.textContent=a+" mod "+n+" = "+(((a%n)+n)%n);
+      else if(op==="inv"){var r=inv(a,n);out.textContent=r===null?"No existe: "+a+" y "+n+" tienen factores comunes":a+"⁻¹ mod "+n+" = "+r+"   (control: "+a+"·"+r+" mod "+n+" = 1)"}
+      else{var b=big($("cB").value);if(b<0n){out.textContent="Usá la opción de inverso para exponentes negativos";return}out.textContent=a+"^"+b+" mod "+n+" = "+modp(a,b,n)}
+    }catch(e){out.textContent="Ingresá números enteros"}}
+  ["cOp","cA","cB","cN"].forEach(function(id){$(id).addEventListener("input",calc)});calc();
+})();
+</script>
+
+</body>
+</html>
