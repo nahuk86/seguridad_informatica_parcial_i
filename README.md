@@ -1,0 +1,1 @@
+# seguridad_informatica_parcial_i
